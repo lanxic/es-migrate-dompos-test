@@ -29,29 +29,27 @@ Where OPTIONS:
   -o FILE       save log output to the FILE
   -r            dry run
   -v            print the es-migrate-dompos version
-
-  ```
+```
 this option I call from http://github.com/astasoft/shgrate it's to much lazy more thinking option
 
-
-1. Prepare the elasticsearch for the migration
+* Prepare the elasticsearch for the migration
 you can use docker for fast deployment just put
 ```
 docker pull elasticsearch
 ```
 
-2. Configure the docker for connect to public port so user can be access 9200 or 9300 port
+* Configure the docker for connect to public port so user can be access 9200 or 9300 port
 ```
 sudo docker run --restart=always --name elasticsearch-test -p 9200:9200 -p 9300:9300 -d elasticsearch
 ```
 
-3. create the directories for es-migrate-dompos
+* create the directories for es-migrate-dompos
 ```
 mkdir migrations migrated rollback
 ```
 this same with `http://github.com/astasoft/shgrate`
 
-4. Create the migration file
+* Create the migration file
 ```
 $ ./es-migrate-dompos.sh -m create_index_user
 ```
@@ -98,7 +96,7 @@ $ cat rollback//2016_09_27_01_34_04_create_index_user.sg_migrate.esm
 curl -XDELETE 'http://localhost:9200/books/'
 ```
 
-5. Run the migration
+* Run the migration
 Before running the migration it's good practice to see what es-migrate-dompos would
 execute by running in dry run mode using -r option. Option -a tells es-migrate-dompos
 the name of elasticsearch server to use.
@@ -146,7 +144,7 @@ health status index pri rep docs.count docs.deleted store.size pri.store.size
 yellow open   books   1   1          0            0       130b           130b
 ```
 
-6. Rollback the changes
+* Rollback the changes
 Doing the rollback is almost the same as doing the migration, you just need to
 use -b option. Let's try to rollback the changes that we've done before but
 let's do it in dry run mode first.
