@@ -160,7 +160,7 @@ sg_init_migrate()
 # Function to create the INDEX migration file
 function sg_create_migration_file()
 {
-    local SG_DATE_RFC2822=$( date -R )
+    local SG_DATE_RFC2822=$( date )
     local SG_NOW=$( date +"%Y_%m_%d_%H_%M_%S" )
     local SG_MIG_NAME=$( echo "$1" | tr '[:upper:]' '[:lower:]' )
     local SG_FILE_NAME=$( printf "%s_%s.%s" "$SG_NOW" "$SG_MIG_NAME" "$SG_MIGRATE_SUFFIX" )
