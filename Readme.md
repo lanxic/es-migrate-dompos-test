@@ -29,8 +29,7 @@ Where OPTIONS:
   -o FILE       save log output to the FILE
   -r            dry run
   -v            print the es-migrate-dompos version
-
-  ```
+```
 this option I call from http://github.com/astasoft/shgrate it's to much lazy more thinking option
 
 
