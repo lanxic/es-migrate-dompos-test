@@ -31,15 +31,15 @@ sg_help()
 Usage: $0 [OPTIONS]
 
 Where OPTIONS:
-  -a NAME       use database NAME
-  -b            rollback mode
-  -c FILE       read the config file from the FILE
-  -e ENVIRON    specify environment name by ENVIRON. Default is 'production'
-  -h            print this help and exit
-  -m NAME       create a migration file named NAME
+  -a HOST       Specify URL address of the Elasticsearch server
+  -b            Rollback mode
+  -c FILE       Specify path of config file
+  -e ENVIRON    Environment name, default should be “production”
+  -h            Printing the help
+  -m NAME       Specify the name of migration file
   -o FILE       save log output to the FILE
-  -r            dry run
-  -v            print the es-migrate-dompos version"
+  -r            Dry run mode
+  -v            Print the version"
 
 }
 
