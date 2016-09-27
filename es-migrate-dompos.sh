@@ -214,19 +214,19 @@ sg_migrate()
             echo "done."
             echo ">> Contents of file $SG_MIGRATION_DIR/${file}: "
 
-            cat "$SG_MIGRATION_DIR/$file"|replace {{ES_SERVER}} ${ES_SERVER}  && echo ""
+            cat "$SG_MIGRATION_DIR/$file"|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }'  && echo ""
 
             continue
         fi
 
         sg_log "Running command: sh $SG_MIGRATION_DIR/$file 2>&1 >/dev/null"
-        SG_IMPORT_ERROR="$( cat  $SG_MIGRATION_DIR/$file|replace {{ES_SERVER}} ${ES_SERVER}|sh  2>&1 >/dev/null )"
+        SG_IMPORT_ERROR="$( cat  $SG_MIGRATION_DIR/$file|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }'|sh  2>&1 >/dev/null )"
 
         if [ $? -eq 0 ]; then
             echo "done."
 
             # Copy the rollback content to the migrated directory
-            cat "$SG_ROLLBACK_DIR/$file"|replace {{ES_SERVER}} ${ES_SERVER} > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
+            cat "$SG_ROLLBACK_DIR/$file"|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
         else
             echo "failed."
             sg_err "Failed migrating $SG_MIGRATION_DIR/$file with message: $SG_IMPORT_ERROR"
@@ -254,13 +254,13 @@ sg_rollback()
         if [ "$SG_DRY_RUN" == "true" ]; then
             echo "done."
             echo ">> Contents of file $SG_MIGRATED_DIR/$SG_ENVIRONMENT/${file}: "
-            cat "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"|replace {{ES_SERVER}} ${ES_SERVER} && echo ""
+            cat "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' && echo ""
 
             continue
         fi
 
         sg_log "Running command: Rollback Elastic < $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file 2>&1 >/dev/null"
-        SG_ROLLBACK_ERROR="$( cat $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file|replace {{ES_SERVER}} ${ES_SERVER}|sh 2>&1 >/dev/null )"
+        SG_ROLLBACK_ERROR="$( cat $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }'|sh 2>&1 >/dev/null )"
 
         if [ $? -eq 0 ]; then
             echo "done."
