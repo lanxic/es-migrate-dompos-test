@@ -20,15 +20,15 @@ Running es-migrate-dompos with -h option will give you list of option that es-mi
 Usage: ./es-migrate-dompos.sh [OPTIONS]
 
 Where OPTIONS:
-  -a NAME       use database NAME
-  -b            rollback mode
-  -c FILE       read the config file from the FILE
-  -e ENVIRON    specify environment name by ENVIRON. Default is 'production'
-  -h            print this help and exit
-  -m NAME       create a migration file named NAME
+  -a HOST       Specify URL address of the Elasticsearch server
+  -b            Rollback mode
+  -c FILE       Specify path of config file
+  -e ENVIRON    Environment name, default should be “production”
+  -h            Printing the help
+  -m NAME       Specify the name of migration file
   -o FILE       save log output to the FILE
-  -r            dry run
-  -v            print the es-migrate-dompos version
+  -r            Dry run mode
+  -v            Print the version
 ```
 this option I call from http://github.com/astasoft/shgrate it's to much lazy more thinking option
 
@@ -66,7 +66,7 @@ $ cat migrations/2016_09_27_01_34_04_create_index_user.sg_migrate.esm
 ## Date:
 ## Write your INDEX migration below this line
 
-curl -XPUT 'http://localhost:9200/books/' -d '{
+curl -XPUT '{{ES_SERVER}}/books/' -d '{
 "settings": {
     "number_of_shards": 1
 },
@@ -93,7 +93,7 @@ $ cat rollback//2016_09_27_01_34_04_create_index_user.sg_migrate.esm
 ## Date:
 ## Write your INDEX rolllback migration below this line
 
-curl -XDELETE 'http://localhost:9200/books/'
+curl -XDELETE '{{ES_SERVER}}/books/'
 ```
 
 * Run the migration
