@@ -120,9 +120,8 @@ sg_compare_dir()
 # Function to initialize elastic config
 sg_init_elestic_config()
 {
-  echo ceksg "$SG_ELASTICS_HOST"
     [ -z "$SG_ELASTICS_HOST" ] && {
-        sg_err "Please specify the database name in -a option, SG_ELASTICS_HOST environment or in config."
+        sg_err "Please specify the Elasticsearch server name in -a option, SG_ELASTICS_HOST environment or in config."
         exit 2
     }
     sg_log "Using index name ${SG_ELASTICS_HOST}."
@@ -197,6 +196,8 @@ sg_migrate()
 {
     sg_init_elestic_config
     sg_init_migrate
+    ES_SERVER=$SG_ELASTICS_HOST
+
 
     # Create the environment directory inside the migrated dir
     sg_log "Creating directory $SG_MIGRATED_DIR/$SG_ENVIRONMENT if not exists."
@@ -208,24 +209,24 @@ sg_migrate()
     for file in $( sg_compare_dir )
     do
         SG_COUNTER=$(( $SG_COUNTER + 1 ))
-
         echo -n "Migrating $file..."
         if [ "$SG_DRY_RUN" == "true" ]; then
             echo "done."
             echo ">> Contents of file $SG_MIGRATION_DIR/${file}: "
-            cat "$SG_MIGRATION_DIR/$file" && echo ""
+
+            cat "$SG_MIGRATION_DIR/$file"|replace {{ES_SERVER}} ${ES_SERVER}  && echo ""
 
             continue
         fi
 
         sg_log "Running command: sh $SG_MIGRATION_DIR/$file 2>&1 >/dev/null"
-        SG_IMPORT_ERROR="$( sh $SG_MIGRATION_DIR/$file 2>&1 >/dev/null )"
+        SG_IMPORT_ERROR="$( cat  $SG_MIGRATION_DIR/$file|replace {{ES_SERVER}} ${ES_SERVER}|sh  2>&1 >/dev/null )"
 
         if [ $? -eq 0 ]; then
             echo "done."
 
             # Copy the rollback content to the migrated directory
-            cat "$SG_ROLLBACK_DIR/$file" > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
+            cat "$SG_ROLLBACK_DIR/$file"|replace {{ES_SERVER}} ${ES_SERVER} > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
         else
             echo "failed."
             sg_err "Failed migrating $SG_MIGRATION_DIR/$file with message: $SG_IMPORT_ERROR"
@@ -241,6 +242,7 @@ sg_rollback()
 {
     sg_init_elestic_config
     sg_init_migrate
+    ES_SERVER=$SG_ELASTICS_HOST
 
     sg_log "Getting list of rollback files in $SG_MIGRATED_DIR/$SG_ENVIRONMENT directory."
     SG_COUNTER=0
@@ -252,13 +254,13 @@ sg_rollback()
         if [ "$SG_DRY_RUN" == "true" ]; then
             echo "done."
             echo ">> Contents of file $SG_MIGRATED_DIR/$SG_ENVIRONMENT/${file}: "
-            cat "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file" && echo ""
+            cat "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"|replace {{ES_SERVER}} ${ES_SERVER} && echo ""
 
             continue
         fi
 
         sg_log "Running command: Rollback Elastic < $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file 2>&1 >/dev/null"
-        SG_ROLLBACK_ERROR="$( sh $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file 2>&1 >/dev/null )"
+        SG_ROLLBACK_ERROR="$( cat $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file|replace {{ES_SERVER}} ${ES_SERVER}|sh 2>&1 >/dev/null )"
 
         if [ $? -eq 0 ]; then
             echo "done."
