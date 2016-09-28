@@ -211,24 +211,25 @@ sg_migrate()
         SG_COUNTER=$(( $SG_COUNTER + 1 ))
         echo -n "Migrating $file..."
         if [ "$SG_DRY_RUN" == "true" ]; then
-            echo "done."
+            echo "done dry run."
             echo ">> Contents of file $SG_MIGRATION_DIR/${file}: "
 
-            cat "$SG_MIGRATION_DIR/$file"|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }'  && echo ""
+            awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_MIGRATION_DIR/$file  && echo ""
 
             continue
         fi
 
         sg_log "Running command: sh $SG_MIGRATION_DIR/$file 2>&1 >/dev/null"
-        SG_IMPORT_ERROR="$( cat  $SG_MIGRATION_DIR/$file|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }'|sh  2>&1 >/dev/null )"
-
-        if [ $? -eq 0 ]; then
-            echo "done."
+        SG_IMPORT_ERROR=`awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_MIGRATION_DIR/$file|sh`
+        success=`echo $SG_IMPORT_ERROR|wc -m`
+        #echo $success this only using debugging
+        if [ $success -eq 22 ]; then
+            echo "done migrate."
 
             # Copy the rollback content to the migrated directory
-            cat "$SG_ROLLBACK_DIR/$file"|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
+            awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_ROLLBACK_DIR/$file > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
         else
-            echo "failed."
+            echo "failed migrate."
             sg_err "Failed migrating $SG_MIGRATION_DIR/$file with message: $SG_IMPORT_ERROR"
             exit 3
         fi
@@ -254,15 +255,15 @@ sg_rollback()
         if [ "$SG_DRY_RUN" == "true" ]; then
             echo "done."
             echo ">> Contents of file $SG_MIGRATED_DIR/$SG_ENVIRONMENT/${file}: "
-            cat "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' && echo ""
+            awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file && echo ""
 
             continue
         fi
 
         sg_log "Running command: Rollback Elastic < $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file 2>&1 >/dev/null"
-        SG_ROLLBACK_ERROR="$( cat $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file|awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }'|sh 2>&1 >/dev/null )"
-
-        if [ $? -eq 0 ]; then
+        SG_ROLLBACK_ERROR=`awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_MIGRATION_DIR/$file|sh`
+        success=`echo $SG_IMPORT_ERROR|wc -m`
+        if [ $success -eq 22 ]; then
             echo "done."
 
             # Remove the file, so it can be rerun again in the future
@@ -328,7 +329,7 @@ done
 
 if [ "$SG_DO_MIGRATION" == "true" ]; then
     if [ "$SG_ROLLBACK_MODE" == "false" ]; then
-        sg_migrate
+      sg_migrate
     else
         sg_rollback
     fi
