@@ -227,7 +227,7 @@ sg_migrate()
             echo "done migrate."
 
             # Copy the rollback content to the migrated directory
-            awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'")}' $SG_ROLLBACK_DIR/$file > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
+            awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'");print}' $SG_ROLLBACK_DIR/$file > "$SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file"
         else
             echo "failed migrate."
             sg_err "Failed migrating $SG_MIGRATION_DIR/$file with message: $SG_IMPORT_ERROR "
@@ -261,7 +261,7 @@ sg_rollback()
         fi
 
         sg_log "Running command: Rollback Elastic < $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file 2>&1 >/dev/null"
-        SG_ROLLBACK_ERROR=`awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_MIGRATION_DIR/$file|sh 2>/dev/null`
+        SG_ROLLBACK_ERROR=`awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file|sh 2>/dev/null`
         success=`echo $SG_ROLLBACK_ERROR|wc -m`
         if [ $success -eq 22 ]; then
             echo "done."
@@ -331,6 +331,6 @@ if [ "$SG_DO_MIGRATION" == "true" ]; then
     if [ "$SG_ROLLBACK_MODE" == "false" ]; then
       sg_migrate
     else
-        sg_rollback
+      sg_rollback
     fi
 fi
