@@ -262,7 +262,7 @@ sg_rollback()
 
         sg_log "Running command: Rollback Elastic < $SG_MIGRATED_DIR/$SG_ENVIRONMENT/$file 2>&1 >/dev/null"
         SG_ROLLBACK_ERROR=`awk '{ gsub("{{ES_SERVER}}","'${ES_SERVER}'"); print }' $SG_MIGRATION_DIR/$file|sh 2>/dev/null`
-        success=`echo $SG_IMPORT_ERROR|wc -m`
+        success=`echo $SG_ROLLBACK_ERROR|wc -m`
         if [ $success -eq 22 ]; then
             echo "done."
 
