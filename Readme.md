@@ -1,4 +1,4 @@
-# es-migrate-dompos-test #
+#### es-migrate-dompos-test #
 ========
 
 index migration (migrate and rollback) for Elasticsearch index.
@@ -171,4 +171,4 @@ Rollback 2016_09_27_01_34_04_create_index_user.sg_migrate.esm...done.
 
 ### THX TO ###
 es-migrate-dompos.sh written under reuse from shgrate(https://github.com/astasoft/shgrate)
-because Iam to Lazy more thinking whats should be I use xxx
+because Iam to Lazy more thinking whats should be I use
